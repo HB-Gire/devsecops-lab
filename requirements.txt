@@ -1,0 +1,8 @@
+# Dependencias de la app (pinneadas = builds reproducibles).
+# VULN-07 (SCA): versiones viejas con CVEs conocidos, a proposito. Detecta: pip-audit / trivy fs.
+# Fix: actualizar a versiones corregidas (pip-audit --fix o ver el reporte) y dejar que Dependabot lo mantenga.
+flask==2.2.2
+werkzeug==2.2.2
+pyyaml==5.3.1
+requests==2.25.1
+gunicorn==20.1.0

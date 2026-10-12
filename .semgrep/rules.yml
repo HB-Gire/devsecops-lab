@@ -1,0 +1,60 @@
+# Reglas Semgrep propias del equipo ("policy as code").
+# Complementan los rulesets publicos (p/python, p/flask, p/secrets) y sirven para
+# codificar errores que ya vimos en revisiones/incidentes y no queremos que vuelvan.
+# Probar: semgrep scan --config .semgrep/rules.yml app
+rules:
+  - id: lab-sqli-fstring
+    message: Query SQL construida con f-string/concatenacion. Usar parametros (?) del driver.
+    severity: ERROR
+    languages: [python]
+    metadata: {cwe: "CWE-89", owasp: "A03:2021 Injection", vuln: VULN-02}
+    pattern-either:
+      - pattern: $CONN.execute(f"...", ...)
+      - pattern: $CONN.execute("..." + $X, ...)
+      - pattern: $CONN.execute("..." % $X, ...)
+
+  - id: lab-subprocess-shell-true
+    message: subprocess con shell=True. Pasar una lista de argumentos y shell=False.
+    severity: ERROR
+    languages: [python]
+    metadata: {cwe: "CWE-78", owasp: "A03:2021 Injection", vuln: VULN-03}
+    pattern: subprocess.$FUNC(..., shell=True, ...)
+
+  - id: lab-yaml-unsafe-load
+    message: yaml.load con Loader inseguro permite ejecutar codigo. Usar yaml.safe_load.
+    severity: ERROR
+    languages: [python]
+    metadata: {cwe: "CWE-502", owasp: "A08:2021 Software and Data Integrity Failures", vuln: VULN-04}
+    patterns:
+      - pattern: yaml.load(...)
+      - pattern-not: yaml.load(..., Loader=yaml.SafeLoader)
+
+  - id: lab-weak-hash
+    message: MD5/SHA1 no son aptos para seguridad. Usar sha256 (o bcrypt/argon2 para passwords).
+    severity: WARNING
+    languages: [python]
+    metadata: {cwe: "CWE-327", owasp: "A02:2021 Cryptographic Failures", vuln: VULN-05}
+    pattern-either:
+      - pattern: hashlib.md5(...)
+      - pattern: hashlib.sha1(...)
+
+  - id: lab-flask-debug
+    message: Flask con debug=True expone el debugger de Werkzeug (RCE).
+    severity: ERROR
+    languages: [python]
+    metadata: {cwe: "CWE-489", owasp: "A05:2021 Security Misconfiguration", vuln: VULN-06}
+    pattern: $APP.run(..., debug=True, ...)
+
+  - id: lab-hardcoded-secret
+    message: Posible secreto hardcodeado. Leerlo de variables de entorno o de un secret manager.
+    severity: ERROR
+    languages: [python]
+    metadata: {cwe: "CWE-798", owasp: "A07:2021 Identification and Authentication Failures", vuln: VULN-01}
+    patterns:
+      - pattern: $NAME = "$VALUE"
+      - metavariable-regex:
+          metavariable: $NAME
+          regex: (?i).*(api_?key|secret|token|passw(or)?d).*
+      - metavariable-regex:
+          metavariable: $VALUE
+          regex: .{16,}

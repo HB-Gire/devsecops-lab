@@ -1,0 +1,21 @@
+[project]
+name = "devsecops-lab"
+version = "0.1.0"
+requires-python = ">=3.11"
+
+[tool.ruff]
+line-length = 110
+target-version = "py311"
+
+[tool.ruff.lint]
+# E/F = errores basicos, I = orden de imports, B = bugbear (bugs probables).
+# La seguridad la cubre bandit/semgrep; se podria agregar "S" (port de bandit dentro de ruff).
+select = ["E", "F", "I", "B"]
+
+[tool.bandit]
+exclude_dirs = ["tests", ".venv"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-q"
