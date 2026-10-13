@@ -65,7 +65,7 @@ def weak_hash():
     value = request.args.get("value", "")
     # VULN-05 (Criptografia debil): MD5. Detecta: bandit B324.
     # Fix: hashlib.sha256(value.encode()).hexdigest()
-    return jsonify(hash=hashlib.md5(value.encode()).hexdigest())
+    return jsonify(hash=hashlib.sha256(value.encode()).hexdigest())
 
 
 if __name__ == "__main__":
