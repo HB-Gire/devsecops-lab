@@ -17,7 +17,7 @@ app = Flask(__name__)
 
 # VULN-01 (Secrets): credencial hardcodeada. Detecta: gitleaks / semgrep.
 # Fix: leerla de una variable de entorno -> os.environ.get("PAYMENTS_API_KEY")
-PAYMENTS_API_KEY = "sk_lab_9f8e7d6c5b4a39281706f5e4d3c2b1a0"
+PAYMENTS_API_KEY = os.environ.get("PAYMENTS_API_KEY", "")
 
 DB_PATH = os.environ.get("DB_PATH", "/tmp/lab.db")
 
