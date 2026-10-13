@@ -1,0 +1,13 @@
+# Dependabot: abre PRs automaticos para actualizar dependencias (SCA "preventivo").
+version: 2
+updates:
+  - package-ecosystem: pip
+    directory: "/"
+    schedule: {interval: weekly}
+    open-pull-requests-limit: 5
+  - package-ecosystem: github-actions   # mantiene actualizadas (y pinneadas) las actions
+    directory: "/"
+    schedule: {interval: weekly}
+  - package-ecosystem: docker
+    directory: "/"
+    schedule: {interval: weekly}

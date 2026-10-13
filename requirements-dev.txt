@@ -1,0 +1,9 @@
+# Dependencias de desarrollo (tests + lint + hooks).
+-r requirements.txt
+pytest>=9.1
+pytest-cov>=7.1
+ruff>=0.17
+pre-commit>=4.7
+# Las herramientas de seguridad se instalan APARTE (pipx) para que sus dependencias
+# no choquen con las de la app:
+#   pipx install bandit[toml] ; pipx install pip-audit ; pipx install semgrep

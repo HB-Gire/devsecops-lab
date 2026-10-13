@@ -1,0 +1,87 @@
+# Seguridad estatica: Secrets + SAST + SCA + IaC/Dockerfile.
+# Corre en push, PR y semanalmente (los CVEs nuevos aparecen aunque el codigo no cambie).
+name: security
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: "0 9 * * 1"   # lunes 06:00 ART
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  GITLEAKS_VERSION: "8.30.1"
+  TRIVY_VERSION: "0.69.3"
+
+jobs:
+  secrets:
+    name: Secrets (gitleaks)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0          # historial completo: un secreto borrado sigue en git
+      - name: Instalar gitleaks
+        run: |
+          curl -sSfL "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" \
+            | tar -xz -C /usr/local/bin gitleaks
+      - name: Escanear historial
+        run: gitleaks git . --redact -v --report-format json --report-path gitleaks.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: gitleaks
+          path: gitleaks.json
+
+  sast:
+    name: SAST (bandit + semgrep)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Bandit
+        run: |
+          pip install "bandit[toml]"
+          bandit -c pyproject.toml -r app -f json -o bandit.json || true   # reporte completo (artefacto)
+          bandit -c pyproject.toml -r app -f txt --severity-level medium  # gate: falla con MEDIUM+
+      - name: Semgrep (reglas publicas + reglas propias)
+        run: |
+          docker run --rm -v "$PWD:/src" -w /src semgrep/semgrep:1.180.0 \
+            semgrep scan --metrics=off \
+              --config p/python --config p/flask --config .semgrep/rules.yml \
+              --json --output semgrep.json --error app
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sast
+          path: "*.json"
+
+  sca:
+    name: SCA (pip-audit)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install pip-audit
+      - name: Dependencias con CVEs conocidos
+        run: pip-audit -r requirements.txt --desc on
+
+  iac:
+    name: Dockerfile / IaC (hadolint + trivy config)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Hadolint
+        run: docker run --rm -i hadolint/hadolint:v2.12.0 hadolint --failure-threshold warning - < Dockerfile
+      - name: Trivy misconfig
+        run: |
+          docker run --rm -v "$PWD:/src" aquasec/trivy:${TRIVY_VERSION} config \
+            --severity HIGH,CRITICAL --exit-code 1 /src
