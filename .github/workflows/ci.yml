@@ -28,7 +28,7 @@ jobs:
     steps:
       # TODO hardening: fijar cada action a su commit SHA (ej: actions/checkout@<sha> # v4)
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
           cache: pip
