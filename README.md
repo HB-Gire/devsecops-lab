@@ -72,3 +72,6 @@ Pistas en los comentarios `Fix:` de `app/main.py`. Solucion en `soluciones/fixes
 - Firmar la imagen con **cosign** y publicar el SBOM como attestation.
 - Agregar **CodeQL** y **OpenSSF Scorecard**.
 - DAST como gate (quitar `-I` en ZAP) contra un entorno de staging.
+# prueba
+# prueba
+# prueba
