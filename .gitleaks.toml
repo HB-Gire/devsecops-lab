@@ -1,0 +1,18 @@
+# Plantilla .gitleaks.toml: reglas por defecto + reglas propias de la organizacion.
+# Copiar a la raiz del repo como .gitleaks.toml (gitleaks lo carga automaticamente).
+title = "config-gitleaks"
+
+[extend]
+useDefault = true          # mantener todas las reglas estandar
+
+# Ejemplo: secreto con formato propio (no lo detectan las reglas de proveedores)
+[[rules]]
+id = "lab-payments-api-key"
+description = "Clave del proveedor de pagos interno (formato sk_lab_ + 32 hex)"
+regex = '''sk_lab_[0-9a-f]{32}'''
+keywords = ["sk_lab_"]     # filtro rapido: solo evalua lineas que contienen esto
+tags = ["key", "payments", "interno"]
+
+# Allowlist global (usar con cuidado; preferir .gitleaksignore por hallazgo con motivo)
+# [allowlist]
+# paths = ['''tests/fixtures/''']
