@@ -1,0 +1,7 @@
+# Excepciones de gitleaks. Cada entrada: motivo, responsable, fecha, ticket.
+#
+# Clave sk_lab_ (falsa, del laboratorio) presente en el commit inicial.
+# Estado: ROTADA y eliminada del código (VULN-01). No se reescribe el historial porque main está protegida
+# y la clave ya no es válida. Responsable: H. Balbiano. Fecha: 2026-10-13. Ticket: LAB-001
+8ba147b50865de62f6e661b8afbea3e5186a6ab2:app/main.py:lab-payments-api-key:20
+# <si apareció un segundo fingerprint de soluciones/fixes.diff, pegalo acá abajo>
