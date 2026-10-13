@@ -51,6 +51,7 @@ jobs:
           bandit -c pyproject.toml -r app -f json -o bandit.json || true   # reporte completo (artefacto)
           bandit -c pyproject.toml -r app -f txt --severity-level medium  # gate: falla con MEDIUM+
       - name: Semgrep (reglas publicas + reglas propias)
+        if: ${{ !cancelled() }}   # correr aunque bandit falle: no perder visibilidad
         run: |
           docker run --rm -v "$PWD:/src" -w /src semgrep/semgrep:1.180.0 \
             semgrep scan --metrics=off \
