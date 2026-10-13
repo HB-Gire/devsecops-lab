@@ -17,9 +17,9 @@ app = Flask(__name__)
 
 # VULN-01 (Secrets): credencial hardcodeada. Detecta: gitleaks / semgrep.
 # Fix: leerla de una variable de entorno -> os.environ.get("PAYMENTS_API_KEY")
-PAYMENTS_API_KEY = "sk_lab_9f8e7d6c5b4a39281706f5e4d3c2b1a0"
+PAYMENTS_API_KEY = os.environ.get("PAYMENTS_API_KEY", "")
 
-DB_PATH = os.environ.get("DB_PATH", "/tmp/lab.db")
+DB_PATH = os.environ.get("DB_PATH", "lab.db")
 
 
 def get_db():
@@ -39,7 +39,7 @@ def find_user():
     conn = get_db()
     # VULN-02 (SQL Injection): query armada con f-string. Detecta: bandit B608 / semgrep.
     # Fix: conn.execute("SELECT id, name FROM users WHERE name = ?", (name,))
-    rows = conn.execute(f"SELECT id, name FROM users WHERE name = '{name}'").fetchall()
+    rows = conn.execute("SELECT id, name FROM users WHERE name = ?", (name,)).fetchall()
     return jsonify(users=[{"id": r[0], "name": r[1]} for r in rows])
 
 
@@ -48,7 +48,7 @@ def ping():
     host = request.args.get("host", "127.0.0.1")
     # VULN-03 (Command Injection): shell=True con input del usuario. Detecta: bandit B602 / semgrep.
     # Fix: subprocess.run(["ping", "-c", "1", host], capture_output=True, text=True, check=False)
-    out = subprocess.run(f"ping -c 1 {host}", shell=True, capture_output=True, text=True)
+    out = subprocess.run(["ping", "-c", "1", host], capture_output=True, text=True, check=False)  # nosec B603 B607
     return jsonify(output=out.stdout)
 
 
@@ -56,7 +56,7 @@ def ping():
 def load_config():
     # VULN-04 (Deserializacion insegura): yaml.load sin SafeLoader. Detecta: bandit B506 / semgrep.
     # Fix: yaml.safe_load(request.data)
-    data = yaml.load(request.data, Loader=yaml.Loader)
+    data = yaml.safe_load(request.data)
     return jsonify(loaded=bool(data))
 
 
@@ -65,10 +65,10 @@ def weak_hash():
     value = request.args.get("value", "")
     # VULN-05 (Criptografia debil): MD5. Detecta: bandit B324.
     # Fix: hashlib.sha256(value.encode()).hexdigest()
-    return jsonify(hash=hashlib.md5(value.encode()).hexdigest())
+    return jsonify(hash=hashlib.sha256(value.encode()).hexdigest())
 
 
 if __name__ == "__main__":
     # VULN-06 (Config insegura): debug=True y bind a 0.0.0.0. Detecta: bandit B201/B104.
     # Fix: en contenedor usar gunicorn (ver Dockerfile) y nunca debug en prod.
-    app.run(host="0.0.0.0", port=8080, debug=True)
+    app.run(host="127.0.0.1", port=8080)

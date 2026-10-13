@@ -31,7 +31,6 @@ def test_hash_returns_hex(client):
 
 # Test de seguridad: una inyeccion no debe devolver filas.
 # Esta marcado xfail mientras VULN-02 exista; al corregirla, quitar el decorador.
-@pytest.mark.xfail(reason="VULN-02 sin corregir", strict=False)
 def test_users_sqli_does_not_leak(client):
     from app.main import get_db
 
