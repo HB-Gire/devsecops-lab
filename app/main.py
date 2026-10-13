@@ -19,7 +19,7 @@ app = Flask(__name__)
 # Fix: leerla de una variable de entorno -> os.environ.get("PAYMENTS_API_KEY")
 PAYMENTS_API_KEY = os.environ.get("PAYMENTS_API_KEY", "")
 
-DB_PATH = os.environ.get("DB_PATH", "/tmp/lab.db")
+DB_PATH = os.environ.get("DB_PATH", "lab.db")
 
 
 def get_db():
@@ -71,4 +71,4 @@ def weak_hash():
 if __name__ == "__main__":
     # VULN-06 (Config insegura): debug=True y bind a 0.0.0.0. Detecta: bandit B201/B104.
     # Fix: en contenedor usar gunicorn (ver Dockerfile) y nunca debug en prod.
-    app.run(host="0.0.0.0", port=8080, debug=True)
+    app.run(host="127.0.0.1", port=8080)
