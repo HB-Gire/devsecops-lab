@@ -39,7 +39,7 @@ def find_user():
     conn = get_db()
     # VULN-02 (SQL Injection): query armada con f-string. Detecta: bandit B608 / semgrep.
     # Fix: conn.execute("SELECT id, name FROM users WHERE name = ?", (name,))
-    rows = conn.execute(f"SELECT id, name FROM users WHERE name = '{name}'").fetchall()
+    rows = conn.execute("SELECT id, name FROM users WHERE name = ?", (name,)).fetchall()
     return jsonify(users=[{"id": r[0], "name": r[1]} for r in rows])
 
 
