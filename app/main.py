@@ -56,7 +56,7 @@ def ping():
 def load_config():
     # VULN-04 (Deserializacion insegura): yaml.load sin SafeLoader. Detecta: bandit B506 / semgrep.
     # Fix: yaml.safe_load(request.data)
-    data = yaml.load(request.data, Loader=yaml.Loader)
+    data = yaml.safe_load(request.data)
     return jsonify(loaded=bool(data))
 
 
