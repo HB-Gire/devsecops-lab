@@ -37,7 +37,7 @@ jobs:
         run: ruff check .
       - name: Tests + cobertura
         run: pytest --cov=app --cov-report=xml --cov-fail-under=70
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: coverage
           path: coverage.xml
@@ -67,7 +67,7 @@ jobs:
 
       - name: Subir reportes
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: image-reports
           path: reports/

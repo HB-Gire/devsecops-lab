@@ -27,7 +27,7 @@ jobs:
           docker run --rm --network lab-net -v "$PWD/reports:/zap/wrk:rw" ghcr.io/zaproxy/zaproxy:stable \
             zap-baseline.py -t http://lab-app:8080 -r zap.html -J zap.json -I
           # -I: no falla por WARN. Quitarlo cuando quieras que el DAST sea un gate.
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: zap-report
