@@ -48,7 +48,7 @@ def ping():
     host = request.args.get("host", "127.0.0.1")
     # VULN-03 (Command Injection): shell=True con input del usuario. Detecta: bandit B602 / semgrep.
     # Fix: subprocess.run(["ping", "-c", "1", host], capture_output=True, text=True, check=False)
-    out = subprocess.run(f"ping -c 1 {host}", shell=True, capture_output=True, text=True)
+    out = subprocess.run(["ping", "-c", "1", host], capture_output=True, text=True, check=False)  # nosec B603 B607
     return jsonify(output=out.stdout)
 
 
