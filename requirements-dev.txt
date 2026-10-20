@@ -2,7 +2,7 @@
 -r requirements.txt
 pytest>=9.1.1
 pytest-cov>=7.1
-ruff>=0.17
+ruff>=0.17.1
 pre-commit>=4.7
 # Las herramientas de seguridad se instalan APARTE (pipx) para que sus dependencias
 # no choquen con las de la app:
